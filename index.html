@@ -1,0 +1,1171 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CodeCleaner</title>
+    <style>
+      :root {
+        --app-bg: #e9eef6;
+        --app-bg-2: #dfe7f3;
+        --panel: #ffffff;
+        --panel-2: #f8fbff;
+        --panel-3: #eef4fb;
+        --text: #1e293b;
+        --muted: #64748b;
+        --accent: #3b82f6;
+        --accent-hover: #2563eb;
+        --accent-soft: #dbeafe;
+        --border: #d5deea;
+        --border-2: #c4d1e3;
+        --good: #16a34a;
+        --warn: #d97706;
+        --bad: #dc2626;
+        --shadow-lg: 0 18px 45px rgba(41, 72, 152, 0.14);
+        --shadow-md: 0 10px 24px rgba(41, 72, 152, 0.1);
+        --shadow-sm: 0 4px 10px rgba(41, 72, 152, 0.08);
+        --radius-xl: 26px;
+        --radius-lg: 18px;
+        --radius-md: 14px;
+        --radius-sm: 12px;
+        --mono: Consolas, "SFMono-Regular", Menlo, Monaco, monospace;
+        --sans: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+        font-family: var(--sans);
+        color: var(--text);
+        background:
+          radial-gradient(
+            circle at top left,
+            rgba(59, 130, 246, 0.12),
+            transparent 28%
+          ),
+          radial-gradient(
+            circle at top right,
+            rgba(147, 197, 253, 0.18),
+            transparent 22%
+          ),
+          linear-gradient(180deg, var(--app-bg) 0%, var(--app-bg-2) 100%);
+      }
+
+      body {
+        padding: 28px;
+      }
+
+      .app {
+        max-width: 1540px;
+        margin: 0 auto;
+        display: grid;
+        gap: 22px;
+      }
+
+      .topbar,
+      .panel {
+        background: linear-gradient(180deg, #ffffff 0%, #f9fbff 100%);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow-lg);
+        overflow: hidden;
+        position: relative;
+      }
+
+      .topbar::before,
+      .panel::before {
+        content: "";
+        position: absolute;
+        inset: 0 0 auto 0;
+        height: 1px;
+        background: rgba(255, 255, 255, 0.95);
+        pointer-events: none;
+      }
+
+      .topbar {
+        padding: 28px;
+      }
+
+      .title-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 24px;
+      }
+
+      h1 {
+        margin: 0 0 10px 0;
+        font-size: 34px;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        color: #122033;
+      }
+
+      .subtitle {
+        margin: 0;
+        color: var(--muted);
+        font-size: 15px;
+        line-height: 1.62;
+        max-width: 980px;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 10px 14px;
+        border-radius: 999px;
+        background: linear-gradient(180deg, #eef5ff 0%, #dbeafe 100%);
+        color: #1d4ed8;
+        border: 1px solid #bfdbfe;
+        box-shadow: var(--shadow-sm);
+        font-size: 12px;
+        font-weight: 800;
+        white-space: nowrap;
+      }
+
+      .toolbar {
+        margin-top: 22px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+      }
+
+      .toolbar-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .toolbar label {
+        font-size: 13px;
+        font-weight: 800;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+
+      .toolbar select {
+        min-width: 180px;
+        background: linear-gradient(180deg, #ffffff 0%, #f2f7fd 100%);
+        color: var(--text);
+        border: 1px solid var(--border-2);
+        border-radius: var(--radius-sm);
+        padding: 11px 14px;
+        font-size: 14px;
+        outline: none;
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.95),
+          var(--shadow-sm);
+      }
+
+      .toolbar select:focus,
+      textarea:focus {
+        border-color: rgba(59, 130, 246, 0.9);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.95),
+          0 0 0 4px rgba(59, 130, 246, 0.14),
+          var(--shadow-sm);
+      }
+
+      .button-row {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      button {
+        border: 1px solid transparent;
+        border-radius: var(--radius-sm);
+        padding: 11px 16px;
+        font-size: 14px;
+        font-weight: 800;
+        cursor: pointer;
+        transition:
+          transform 0.14s ease,
+          box-shadow 0.14s ease,
+          background 0.14s ease,
+          border-color 0.14s ease;
+        box-shadow: var(--shadow-sm);
+      }
+
+      button:hover {
+        transform: translateY(-1px);
+      }
+
+      button:active {
+        transform: translateY(0);
+      }
+
+      button.primary {
+        background: linear-gradient(
+          180deg,
+          #60a5fa 0%,
+          #3b82f6 55%,
+          #2563eb 100%
+        );
+        color: white;
+        border-color: rgba(37, 99, 235, 0.35);
+      }
+
+      button.primary:hover {
+        box-shadow: 0 14px 26px rgba(37, 99, 235, 0.2);
+      }
+
+      button.secondary {
+        background: linear-gradient(180deg, #ffffff 0%, #eff5fc 100%);
+        color: var(--text);
+        border-color: var(--border-2);
+      }
+
+      button.secondary:hover {
+        background: linear-gradient(180deg, #ffffff 0%, #e8f0fb 100%);
+      }
+
+      button.ghost {
+        background: linear-gradient(180deg, #ffffff 0%, #f7fafc 100%);
+        color: var(--muted);
+        border-color: var(--border);
+      }
+
+      button.ghost:hover {
+        color: var(--text);
+        background: linear-gradient(180deg, #ffffff 0%, #eef4fb 100%);
+      }
+
+      .summary-row {
+        display: flex;
+        gap: 14px;
+        margin-top: 20px;
+        flex-wrap: wrap;
+      }
+
+      .summary-chip {
+        border: 1px solid var(--border);
+        background: linear-gradient(180deg, #ffffff 0%, #f1f6fc 100%);
+        color: var(--text);
+        border-radius: 999px;
+        padding: 10px 15px;
+        font-size: 13px;
+        font-weight: 800;
+        box-shadow: var(--shadow-sm);
+      }
+
+      .summary-chip.clickable {
+        cursor: pointer;
+        transition:
+          background 0.14s ease,
+          border-color 0.14s ease,
+          transform 0.14s ease,
+          box-shadow 0.14s ease;
+      }
+
+      .summary-chip.clickable:hover {
+        background: linear-gradient(180deg, #eff6ff 0%, #dbeafe 100%);
+        border-color: #93c5fd;
+        transform: translateY(-1px);
+        box-shadow: 0 12px 20px rgba(59, 130, 246, 0.12);
+      }
+
+      .status-line {
+        margin-top: 14px;
+        min-height: 20px;
+        font-size: 13px;
+        color: var(--muted);
+        font-weight: 700;
+      }
+
+      .good {
+        color: var(--good);
+      }
+      .warn {
+        color: var(--warn);
+      }
+      .bad {
+        color: var(--bad);
+      }
+
+      .main-grid {
+        display: grid;
+        grid-template-columns: 1.15fr 1fr;
+        gap: 22px;
+        align-items: stretch;
+      }
+
+      .panel {
+        display: flex;
+        flex-direction: column;
+        min-height: 760px;
+      }
+
+      .panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        padding: 18px 20px;
+        border-bottom: 1px solid var(--border);
+        background: linear-gradient(180deg, #ffffff 0%, #f4f8fd 100%);
+      }
+
+      .header-left {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .panel-title {
+        margin: 0;
+        font-size: 17px;
+        font-weight: 800;
+        color: #13243a;
+      }
+
+      .panel-subtitle {
+        margin-top: 5px;
+        font-size: 13px;
+        color: var(--muted);
+      }
+
+      .panel-body {
+        padding: 18px;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+      }
+
+      textarea {
+        width: 100%;
+        min-height: 640px;
+        resize: none;
+        border-radius: 18px;
+        border: 1px solid var(--border-2);
+        background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
+        color: var(--text);
+        padding: 18px;
+        font: 14px/1.55 var(--mono);
+        outline: none;
+        white-space: pre-wrap;
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.96),
+          inset 0 -1px 0 rgba(196, 209, 227, 0.25);
+        flex: 1;
+      }
+
+      .panel-actions {
+        margin-top: 14px;
+        display: flex;
+        justify-content: flex-start;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .result-toggle {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .toggle-btn {
+        padding: 9px 13px;
+        border-radius: 999px;
+        background: linear-gradient(180deg, #ffffff 0%, #f3f7fd 100%);
+        border: 1px solid var(--border-2);
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 800;
+        box-shadow: var(--shadow-sm);
+      }
+
+      .toggle-btn.active {
+        background: linear-gradient(180deg, #eff6ff 0%, #dbeafe 100%);
+        border-color: #93c5fd;
+        color: #1d4ed8;
+      }
+
+      .output-box {
+        border: 1px solid var(--border-2);
+        border-radius: 18px;
+        background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
+        min-height: 640px;
+        overflow: hidden;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.96);
+        flex: 1;
+      }
+
+      .output-scroll {
+        max-height: 640px;
+        overflow: auto;
+      }
+
+      .code-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        font-family: var(--mono);
+        font-size: 14px;
+      }
+
+      .code-row {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 14px;
+        align-items: center;
+        padding: 14px 16px;
+        border-bottom: 1px solid rgba(196, 209, 227, 0.72);
+        transition: background 0.12s ease;
+      }
+
+      .code-row:hover {
+        background: linear-gradient(180deg, #f8fbff 0%, #edf5ff 100%);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.92);
+      }
+
+      .code-row:last-child {
+        border-bottom: 0;
+      }
+
+      .code-main {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        min-width: 0;
+      }
+
+      .code-value {
+        font-weight: 800;
+        color: #14263d;
+        word-break: break-all;
+      }
+
+      .code-meta {
+        font-size: 12px;
+        color: var(--muted);
+        font-family: var(--sans);
+      }
+
+      .pill {
+        padding: 5px 9px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 900;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        border: 1px solid transparent;
+        box-shadow: var(--shadow-sm);
+      }
+
+      .pill.valid {
+        color: #166534;
+        background: linear-gradient(180deg, #ecfdf5 0%, #dcfce7 100%);
+        border-color: #bbf7d0;
+      }
+
+      .pill.invalid {
+        color: #991b1b;
+        background: linear-gradient(180deg, #fef2f2 0%, #fee2e2 100%);
+        border-color: #fecaca;
+      }
+
+      .empty-state {
+        padding: 28px;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.6;
+      }
+
+      .footer-note {
+        margin-top: 12px;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.55;
+      }
+
+      .string-box {
+        padding: 18px;
+        font: 14px/1.6 var(--mono);
+        color: var(--text);
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <section class="topbar">
+        <div class="title-row">
+          <div>
+            <h1>CodeCleaner Workspace</h1>
+            <p class="subtitle">
+              Extract and deduplicate maintenance codes from messy source text.
+              Gulfstream supports 6-digit and 10-digit codes, including numeric
+              range expansion. Falcon supports Filtrix-style Falcon code
+              patterns.
+            </p>
+          </div>
+          <div class="badge">Code Extraction Workspace</div>
+        </div>
+
+        <div class="toolbar">
+          <div class="toolbar-left">
+            <label for="codeType">Code Type</label>
+            <select id="codeType">
+              <option value="gulfstream">Gulfstream</option>
+              <option value="falcon">Falcon</option>
+            </select>
+          </div>
+
+          <div class="button-row">
+            <button type="button" class="secondary" id="copyBtn">
+              Copy Results
+            </button>
+            <button type="button" class="secondary" id="separateBtn">
+              Separate Strings
+            </button>
+          </div>
+        </div>
+
+        <div class="summary-row">
+          <div class="summary-chip" id="validSummary">Valid codes: 0</div>
+          <div class="summary-chip clickable" id="invalidSummary">
+            Invalid codes: 0
+          </div>
+        </div>
+
+        <div class="status-line" id="statusLine">Ready.</div>
+      </section>
+
+      <section class="main-grid">
+        <div class="panel">
+          <div class="panel-header">
+            <div class="header-left">
+              <h2 class="panel-title">Raw Codes</h2>
+              <div class="panel-subtitle">
+                Paste copied text, notes, task lists, or mixed content.
+              </div>
+            </div>
+            <button type="button" class="primary" id="extractBtn">
+              Extract Codes
+            </button>
+          </div>
+
+          <div class="panel-body">
+            <textarea
+              id="inputText"
+              spellcheck="false"
+              placeholder="Examples:
+
+Gulfstream:
+122209 thru 122214
+256300.001
+256300.002
+
+Falcon:
+SB F900-1234
+ASBF2000 ABC-123 R01
+FSA 12-34-123-R01-A"
+            ></textarea>
+
+            <div class="panel-actions">
+              <button type="button" class="ghost" id="clearBtn">Clear</button>
+            </div>
+
+            <div class="footer-note">
+              Gulfstream range handling is automatic for 6-digit numeric ranges
+              using
+              <strong>thru</strong>, <strong>through</strong>,
+              <strong>to</strong>, or <strong>-</strong>.
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <h2 class="panel-title">Output</h2>
+              <div class="panel-subtitle" id="resultSubtitle">
+                Cleaned, deduplicated output
+              </div>
+            </div>
+            <div class="result-toggle">
+              <button type="button" class="toggle-btn active" data-view="valid">
+                Valid Codes
+              </button>
+              <button type="button" class="toggle-btn" data-view="invalid">
+                Invalid Codes
+              </button>
+              <button type="button" class="toggle-btn" data-view="string">
+                Code String
+              </button>
+            </div>
+          </div>
+
+          <div class="panel-body">
+            <div class="output-box">
+              <div class="output-scroll">
+                <div id="validView">
+                  <ul class="code-list" id="validList"></ul>
+                  <div class="empty-state" id="validEmpty">
+                    No valid codes extracted yet.
+                  </div>
+                </div>
+
+                <div id="invalidView" style="display: none">
+                  <ul class="code-list" id="invalidList"></ul>
+                  <div class="empty-state" id="invalidEmpty">
+                    No invalid codes found.
+                  </div>
+                </div>
+
+                <div id="stringView" style="display: none">
+                  <div class="empty-state" id="stringEmpty">
+                    No code string generated yet.
+                  </div>
+                  <div
+                    id="stringBox"
+                    class="string-box"
+                    style="display: none"
+                  ></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="footer-note" id="resultSummary">
+              Results will appear here after extraction.
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      const RANGE_MAX_SIZE = 1000;
+
+      const DOM = {
+        inputText: document.getElementById("inputText"),
+        codeType: document.getElementById("codeType"),
+        extractBtn: document.getElementById("extractBtn"),
+        copyBtn: document.getElementById("copyBtn"),
+        separateBtn: document.getElementById("separateBtn"),
+        clearBtn: document.getElementById("clearBtn"),
+        statusLine: document.getElementById("statusLine"),
+        validSummary: document.getElementById("validSummary"),
+        invalidSummary: document.getElementById("invalidSummary"),
+        validList: document.getElementById("validList"),
+        invalidList: document.getElementById("invalidList"),
+        validEmpty: document.getElementById("validEmpty"),
+        invalidEmpty: document.getElementById("invalidEmpty"),
+        resultSummary: document.getElementById("resultSummary"),
+        resultSubtitle: document.getElementById("resultSubtitle"),
+        toggleButtons: document.querySelectorAll(".toggle-btn"),
+        validView: document.getElementById("validView"),
+        invalidView: document.getElementById("invalidView"),
+        stringView: document.getElementById("stringView"),
+        stringBox: document.getElementById("stringBox"),
+        stringEmpty: document.getElementById("stringEmpty"),
+      };
+
+      const regex = {
+        gulfstreamSix: /^\d{6}U?$/,
+        gulfstreamNine: /^\d{6}\.\d{2}U?$/,
+        gulfstreamTen: /^\d{6}\.[A-Z0-9]{3}U?$/,
+        faaDateExact: /^FAA\s\d{4}-\d{2}-\d{2}$/,
+        faaDateGlobal: /\bFAA\s\d{4}-\d{2}-\d{2}\b/g,
+        easaExact: /^EASA\s\d{4}-\d{4}$/,
+        easaGlobal: /\bEASA\s\d{4}-\d{4}\b/g,
+        invalidCandidate: /\b\d{5,6}(?:[.\-][A-Z0-9]{1,3})?U?\b/g,
+        range: /\b(\d{6})\s*(?:thru|through|to|-)\s*(\d{6})\b/gi,
+      };
+
+      const CODE_TYPES = {
+        gulfstream: {
+          extract(text) {
+            const gulfstreamMatches =
+              text.match(/\b\d{6}(?:\.\d{2}|\.[A-Z0-9]{3})?U?\b/g) || [];
+            const faaMatches = text.match(regex.faaDateGlobal) || [];
+            const easaMatches = text.match(regex.easaGlobal) || [];
+            const matches = [
+              ...gulfstreamMatches,
+              ...faaMatches,
+              ...easaMatches,
+            ];
+
+            const seen = new Set();
+            const valid = [];
+            let duplicates = 0;
+
+            for (const raw of matches) {
+              let code = raw.toUpperCase().trim();
+
+              if (/^\d{6}/.test(code)) {
+                code = code.replace(/U$/, "");
+              }
+
+              if (seen.has(code)) {
+                duplicates += 1;
+                continue;
+              }
+              seen.add(code);
+              valid.push(code);
+            }
+
+            return { validCodes: valid, duplicatesRemoved: duplicates };
+          },
+
+          describe(code) {
+            if (regex.faaDateExact.test(code)) return "FAA date code";
+            if (regex.easaExact.test(code)) return "EASA code";
+            if (regex.gulfstreamTen.test(code)) return "10-digit code";
+            if (regex.gulfstreamNine.test(code)) return "9-digit code";
+            return "6-digit code";
+          },
+        },
+
+        falcon: {
+          extract(text) {
+            const patterns = [
+              /\bASB(?:F2000)?\s*[A-Z0-9]+(?:-[A-Z0-9]+)*\s*(?:R\d{2})?\b/g,
+              /\bSB\s*[A-Z0-9]+(?:-[A-Z0-9]+)+\s*(?:R\d{2})?\b/g,
+              /\bFSA\s*\d{2}-\d{2}--?\d{2,3}-R\d{2}-[A-Z]\b/g,
+              /\bFSN\s*\d{1,4}-R\d{2}-[A-Z]\b/g,
+              /\b\d{2}-\d{2}-\d{2}-\d{3}-\d{3}-\d{2}[A-Z]?\b/g,
+              /\bFAA\s\d{4}-\d{2}\b/g,
+              /\bEASA\s\d{4}-\d{4}\b/g,
+            ];
+
+            const seen = new Set();
+            const valid = [];
+            let duplicates = 0;
+
+            for (const pattern of patterns) {
+              const matches = text.match(pattern) || [];
+              for (const raw of matches) {
+                const code = raw.toUpperCase().trim();
+                if (seen.has(code)) {
+                  duplicates += 1;
+                  continue;
+                }
+                seen.add(code);
+                valid.push(code);
+              }
+            }
+
+            return { validCodes: valid, duplicatesRemoved: duplicates };
+          },
+
+          describe(code) {
+            if (/^EASA\s\d{4}-\d{4}$/.teset(code)) return "EASA code";
+            if (/^FAA\s\d{4}-\d{2}-\d{2}$/.test(code)) return "FAA date code";
+            if (/^ASB/.test(code)) return "ASB code";
+            if (/^SB\s*/.test(code)) return "SB code";
+            if (/^FSA/.test(code)) return "FSA code";
+            if (/^FSN/.test(code)) return "FSN code";
+            return "Falcon structured code";
+          },
+        },
+      };
+
+      let lastRun = {
+        validCodes: [],
+        invalidCandidates: [],
+        duplicatesRemoved: 0,
+        rangesExpanded: 0,
+      };
+
+      function setStatus(message, tone = "neutral") {
+        DOM.statusLine.className = "status-line";
+        if (tone === "good") DOM.statusLine.classList.add("good");
+        if (tone === "warn") DOM.statusLine.classList.add("warn");
+        if (tone === "bad") DOM.statusLine.classList.add("bad");
+        DOM.statusLine.textContent = message;
+      }
+
+      function normalizeText(text) {
+        return text.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+      }
+
+      function padSix(value) {
+        return String(value).padStart(6, "0");
+      }
+
+      function expandNumericRanges(text) {
+        let rangesExpanded = 0;
+
+        const expandedText = text.replace(
+          regex.range,
+          (fullMatch, startStr, endStr) => {
+            const start = Number(startStr);
+            const end = Number(endStr);
+
+            if (!Number.isInteger(start) || !Number.isInteger(end))
+              return fullMatch;
+            if (end < start) return fullMatch;
+
+            const size = end - start + 1;
+            if (size > RANGE_MAX_SIZE) return fullMatch;
+
+            const parts = [];
+            for (let i = start; i <= end; i += 1) {
+              parts.push(padSix(i));
+            }
+
+            rangesExpanded += 1;
+            return parts.join("\n");
+          },
+        );
+
+        return { text: expandedText, rangesExpanded };
+      }
+
+      function collectInvalidCandidates(text, validCodes) {
+        const candidates = text.match(regex.invalidCandidate) || [];
+        const validSet = new Set(validCodes);
+        const map = new Map();
+
+        for (const raw of candidates) {
+          let candidate = raw.toUpperCase().trim();
+
+          if (/^\d{6}/.test(candidate)) {
+            candidate = candidate.replace(/U$/, "");
+          }
+
+          if (validSet.has(candidate)) continue;
+          if (regex.faaDateExact.test(candidate)) continue;
+          if (regex.easaExact.test(candidate)) continue;
+          if (regex.gulfstreamSix.test(candidate)) continue;
+          if (regex.gulfstreamNine.test(candidate)) continue;
+          if (regex.gulfstreamTen.test(candidate)) continue;
+
+          map.set(candidate, (map.get(candidate) || 0) + 1);
+        }
+
+        return Array.from(map.entries()).map(([value, count]) => ({
+          value,
+          count,
+        }));
+      }
+
+      function renderValidCodes(validCodes, selectedType) {
+        DOM.validList.innerHTML = "";
+
+        if (!validCodes.length) {
+          DOM.validEmpty.style.display = "block";
+          return;
+        }
+
+        DOM.validEmpty.style.display = "none";
+
+        const descriptor = CODE_TYPES[selectedType];
+
+        for (const code of validCodes) {
+          const li = document.createElement("li");
+          li.className = "code-row";
+
+          const left = document.createElement("div");
+          left.className = "code-main";
+
+          const value = document.createElement("div");
+          value.className = "code-value";
+          value.textContent = code;
+
+          const meta = document.createElement("div");
+          meta.className = "code-meta";
+          meta.textContent = descriptor.describe(code);
+
+          left.appendChild(value);
+          left.appendChild(meta);
+
+          const pill = document.createElement("div");
+          pill.className = "pill valid";
+          pill.textContent = "Valid";
+
+          li.appendChild(left);
+          li.appendChild(pill);
+          DOM.validList.appendChild(li);
+        }
+      }
+
+      function renderInvalidCandidates(invalidCandidates) {
+        DOM.invalidList.innerHTML = "";
+
+        if (!invalidCandidates.length) {
+          DOM.invalidEmpty.style.display = "block";
+          return;
+        }
+
+        DOM.invalidEmpty.style.display = "none";
+
+        for (const item of invalidCandidates) {
+          const li = document.createElement("li");
+          li.className = "code-row";
+
+          const left = document.createElement("div");
+          left.className = "code-main";
+
+          const value = document.createElement("div");
+          value.className = "code-value";
+          value.textContent = item.value;
+
+          const meta = document.createElement("div");
+          meta.className = "code-meta";
+          meta.textContent =
+            item.count === 1 ? "1 occurrence" : `${item.count} occurrences`;
+
+          left.appendChild(value);
+          left.appendChild(meta);
+
+          const pill = document.createElement("div");
+          pill.className = "pill invalid";
+          pill.textContent = "Review";
+
+          li.appendChild(left);
+          li.appendChild(pill);
+          DOM.invalidList.appendChild(li);
+        }
+      }
+
+      function renderCodeString(validCodes) {
+        const text = validCodes.join(",");
+
+        if (!text) {
+          DOM.stringEmpty.style.display = "block";
+          DOM.stringBox.style.display = "none";
+          DOM.stringBox.textContent = "";
+          return;
+        }
+
+        DOM.stringEmpty.style.display = "none";
+        DOM.stringBox.style.display = "block";
+        DOM.stringBox.textContent = text;
+      }
+
+      function buildSeparatedStrings() {
+        const six = [];
+        const nine = [];
+        const ten = [];
+
+        for (const code of lastRun.validCodes) {
+          if (regex.gulfstreamSix.test(code)) {
+            six.push(code);
+          } else if (regex.gulfstreamNine.test(code)) {
+            nine.push(code);
+          } else if (regex.gulfstreamTen.test(code)) {
+            ten.push(code);
+          }
+        }
+
+        const sections = [];
+
+        if (six.length) {
+          sections.push(`6-digit string:\n${six.join(",")}`);
+        }
+        if (nine.length) {
+          sections.push(`9-digit string:\n${nine.join(",")}`);
+        }
+        if (ten.length) {
+          sections.push(`10-digit string:\n${ten.join(",")}`);
+        }
+
+        return sections.join("\n\n");
+      }
+
+      function separateStrings() {
+        if (DOM.codeType.value !== "gulfstream") {
+          setStatus(
+            "Separate Strings is only available for Gulfstream.",
+            "warn",
+          );
+          return;
+        }
+
+        const text = buildSeparatedStrings();
+
+        if (!text) {
+          setStatus("No Gulfstream results to separate yet.", "warn");
+          return;
+        }
+
+        DOM.stringEmpty.style.display = "none";
+        DOM.stringBox.style.display = "block";
+        DOM.stringBox.textContent = text;
+        switchView("string");
+        setStatus(
+          "Separated results by 6-digit, 9-digit, and 10-digit format.",
+          "good",
+        );
+      }
+
+      function updateSeparateButtonVisibility() {
+        if (DOM.codeType.value === "gulfstream") {
+          DOM.separateBtn.style.display = "inline-flex";
+        } else {
+          DOM.separateBtn.style.display = "none";
+        }
+      }
+
+      function updateSummary(validCount, invalidCount) {
+        DOM.validSummary.textContent = `Valid codes: ${validCount}`;
+        DOM.invalidSummary.textContent = `Invalid codes: ${invalidCount}`;
+      }
+
+      function switchView(viewName) {
+        DOM.validView.style.display = viewName === "valid" ? "block" : "none";
+        DOM.invalidView.style.display =
+          viewName === "invalid" ? "block" : "none";
+        DOM.stringView.style.display = viewName === "string" ? "block" : "none";
+
+        if (viewName === "valid") {
+          DOM.resultSubtitle.textContent = "Cleaned, deduplicated output";
+        } else if (viewName === "invalid") {
+          DOM.resultSubtitle.textContent =
+            "Values that may need analyst review";
+        } else {
+          DOM.resultSubtitle.textContent = "Comma-delimited code string";
+        }
+
+        DOM.toggleButtons.forEach((btn) => {
+          btn.classList.toggle("active", btn.dataset.view === viewName);
+        });
+      }
+
+      function runExtraction() {
+        const rawInput = normalizeText(DOM.inputText.value);
+        const selectedType = DOM.codeType.value;
+
+        if (!rawInput.trim()) {
+          lastRun = {
+            validCodes: [],
+            invalidCandidates: [],
+            duplicatesRemoved: 0,
+            rangesExpanded: 0,
+          };
+          renderValidCodes([], selectedType);
+          renderInvalidCandidates([]);
+          renderCodeString([]);
+          updateSummary(0, 0);
+          DOM.resultSummary.textContent = "No input provided.";
+          setStatus(
+            "Nothing to extract. Paste some source text first.",
+            "warn",
+          );
+          return;
+        }
+
+        let processedText = rawInput;
+        let rangesExpanded = 0;
+
+        if (selectedType === "gulfstream") {
+          const expanded = expandNumericRanges(rawInput);
+          processedText = expanded.text;
+          rangesExpanded = expanded.rangesExpanded;
+        }
+
+        const extracted = CODE_TYPES[selectedType].extract(processedText);
+
+        let invalidCandidates = [];
+        if (selectedType === "gulfstream") {
+          invalidCandidates = collectInvalidCandidates(
+            processedText,
+            extracted.validCodes,
+          );
+        }
+
+        lastRun = {
+          validCodes: extracted.validCodes,
+          invalidCandidates,
+          duplicatesRemoved: extracted.duplicatesRemoved,
+          rangesExpanded,
+        };
+
+        renderValidCodes(lastRun.validCodes, selectedType);
+        renderInvalidCandidates(lastRun.invalidCandidates);
+        renderCodeString(lastRun.validCodes);
+        updateSummary(
+          lastRun.validCodes.length,
+          lastRun.invalidCandidates.length,
+        );
+
+        DOM.resultSummary.textContent =
+          `${lastRun.validCodes.length} valid code${lastRun.validCodes.length === 1 ? "" : "s"} found · ` +
+          `${lastRun.invalidCandidates.length} invalid code${lastRun.invalidCandidates.length === 1 ? "" : "s"} available for review`;
+
+        setStatus(
+          `Extraction complete. ${lastRun.validCodes.length} valid code${lastRun.validCodes.length === 1 ? "" : "s"} found.`,
+          lastRun.validCodes.length ? "good" : "warn",
+        );
+      }
+
+      async function copyResults() {
+        const activeBtn = Array.from(DOM.toggleButtons).find((btn) =>
+          btn.classList.contains("active"),
+        );
+        const activeView = activeBtn ? activeBtn.dataset.view : "valid";
+
+        let text = "";
+
+        if (activeView === "string") {
+          text = lastRun.validCodes.join(",");
+        } else if (activeView === "valid") {
+          text = lastRun.validCodes.join("\n");
+        } else if (activeView === "invalid") {
+          text = lastRun.invalidCandidates.map((x) => x.value).join("\n");
+        }
+
+        if (!text) {
+          setStatus("No results to copy yet.", "warn");
+          return;
+        }
+
+        try {
+          await navigator.clipboard.writeText(text);
+          setStatus("Copied results to clipboard.", "good");
+        } catch (error) {
+          setStatus("Clipboard copy failed in this browser context.", "bad");
+        }
+      }
+
+      function clearAll() {
+        DOM.inputText.value = "";
+        lastRun = {
+          validCodes: [],
+          invalidCandidates: [],
+          duplicatesRemoved: 0,
+          rangesExpanded: 0,
+        };
+        renderValidCodes([], DOM.codeType.value);
+        renderInvalidCandidates([]);
+        renderCodeString([]);
+        updateSummary(0, 0);
+        DOM.resultSummary.textContent = "Results cleared.";
+        switchView("valid");
+        setStatus("Cleared input and results.");
+      }
+
+      DOM.extractBtn.addEventListener("click", runExtraction);
+      DOM.copyBtn.addEventListener("click", copyResults);
+      DOM.separateBtn.addEventListener("click", separateStrings);
+      DOM.clearBtn.addEventListener("click", clearAll);
+      DOM.invalidSummary.addEventListener("click", () => switchView("invalid"));
+
+      DOM.toggleButtons.forEach((btn) => {
+        btn.addEventListener("click", () => switchView(btn.dataset.view));
+      });
+
+      DOM.codeType.addEventListener("change", () => {
+        clearAll();
+        updateSeparateButtonVisibility();
+        setStatus(
+          `${DOM.codeType.options[DOM.codeType.selectedIndex].text} selected.`,
+        );
+      });
+
+      updateSummary(0, 0);
+      switchView("valid");
+      updateSeparateButtonVisibility();
+    </script>
+  </body>
+</html>
