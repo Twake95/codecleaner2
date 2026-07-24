@@ -758,7 +758,7 @@ FSA 12-34-123-R01-A"
           },
 
           describe(code) {
-            if (/^EASA\s\d{4}-\d{4}$/.teset(code)) return "EASA code";
+            if (/^EASA\s\d{4}-\d{4}$/.test(code)) return "EASA code";
             if (/^FAA\s\d{4}-\d{2}-\d{2}$/.test(code)) return "FAA date code";
             if (/^ASB/.test(code)) return "ASB code";
             if (/^SB\s*/.test(code)) return "SB code";
